@@ -1,0 +1,27 @@
+FROM node:14.15-alpine as build
+
+WORKDIR /usr/local/web-app
+
+COPY ./package*.json /usr/local/web-app/
+
+RUN npm ci
+
+COPY . /usr/local/web-app/
+
+RUN npm run build
+
+
+
+FROM node:14.15-alpine
+
+WORKDIR /usr/local/web-hosting
+
+COPY --from=build /usr/local/web-app/dist/ /usr/local/web-hosting/dist
+
+RUN npm i -g http-server@14.1.1
+
+RUN apk --update --no-cache add curl
+
+HEALTHCHECK --interval=10s --timeout=10s --start-period=5s --retries=3 CMD curl --fail http://localhost:4200
+
+CMD http-server ./dist/docker-example --gzip --port 4200

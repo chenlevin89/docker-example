@@ -1,0 +1,11 @@
+FROM node:14.15-alpine
+
+WORKDIR /usr/local/web-app
+
+COPY . /usr/local/web-app/
+
+RUN npm ci
+
+RUN npm run build
+
+CMD npm run serve:build
